@@ -1,18 +1,24 @@
-name: Docker Image CI
-
+name: Build Docker Image
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      # Checkout repository
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Build and push Docker image
+      - name: Build and push
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+          docker build -t liangzexu/chatgpt-proxy .
+          docker push liangzexu/chatgpt-proxy
